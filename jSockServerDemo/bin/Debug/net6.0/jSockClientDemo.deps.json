@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "jSockClientDemo/1.0.0": {
+        "dependencies": {
+          "jSock": "1.0.0"
+        },
+        "runtime": {
+          "jSockClientDemo.dll": {}
+        }
+      },
+      "jSock/1.0.0": {
+        "runtime": {
+          "jSock.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "jSockClientDemo/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "jSock/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
