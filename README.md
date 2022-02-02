@@ -2,7 +2,7 @@
 My C# WebSocket Server
 
 # Example of a jSock Server
-```
+```csharp
 using jSock;
 
 class RTC : jSockServer
