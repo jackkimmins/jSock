@@ -1,3 +1,5 @@
+[logo]: https://raw.githubusercontent.com/jackkimmins/jSock/main/jSockLogo.svg "jSock Logo"
+
 # jSock
 My C# WebSocket Server
 
