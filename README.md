@@ -1,4 +1,4 @@
-[logo]: https://raw.githubusercontent.com/jackkimmins/jSock/main/jSockLogo.svg "jSock Logo"
+<img src="https://raw.githubusercontent.com/jackkimmins/jSock/main/jSockLogo.svg" alt="jSock Logo" width=400>
 
 # jSock
 My C# WebSocket Server
