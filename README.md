@@ -1,6 +1,16 @@
 # jSock
 My C# WebSocket Server
 
+## How to use jSock?
+jSock is avaliable on NuGet and can be used in any .NET Core project.
+
+[NuGet Package](https://www.nuget.org/packages/jSock)
+
+```
+dotnet add package jSock
+Install-Package jSock
+```
+
 # Example of a jSock Server
 ```csharp
 using jSock;
