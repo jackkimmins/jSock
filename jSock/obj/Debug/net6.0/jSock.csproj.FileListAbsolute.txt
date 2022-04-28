@@ -1,6 +1,5 @@
 C:\Users\jackk\OneDrive\My Projects\jSock\jSock\bin\Debug\net6.0\jSock.deps.json
 C:\Users\jackk\OneDrive\My Projects\jSock\jSock\bin\Debug\net6.0\jSock.dll
-C:\Users\jackk\OneDrive\My Projects\jSock\jSock\bin\Debug\net6.0\ref\jSock.dll
 C:\Users\jackk\OneDrive\My Projects\jSock\jSock\bin\Debug\net6.0\jSock.pdb
 C:\Users\jackk\OneDrive\My Projects\jSock\jSock\obj\Debug\net6.0\jSock.csproj.AssemblyReference.cache
 C:\Users\jackk\OneDrive\My Projects\jSock\jSock\obj\Debug\net6.0\jSock.GeneratedMSBuildEditorConfig.editorconfig
@@ -10,3 +9,4 @@ C:\Users\jackk\OneDrive\My Projects\jSock\jSock\obj\Debug\net6.0\jSock.csproj.Co
 C:\Users\jackk\OneDrive\My Projects\jSock\jSock\obj\Debug\net6.0\jSock.dll
 C:\Users\jackk\OneDrive\My Projects\jSock\jSock\obj\Debug\net6.0\ref\jSock.dll
 C:\Users\jackk\OneDrive\My Projects\jSock\jSock\obj\Debug\net6.0\jSock.pdb
+C:\Users\jackk\OneDrive\My Projects\jSock\jSock\obj\Debug\net6.0\refint\jSock.dll
