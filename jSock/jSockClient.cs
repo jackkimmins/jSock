@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace jSock;
 
 public delegate void OnRecieve(string data);
+public delegate void OnConnect();
 
 public partial class jSockClient : IDisposable
 {
@@ -37,7 +38,7 @@ public partial class jSockClient : IDisposable
         await WS.ConnectAsync(new Uri(url), CTS.Token);
         await Task.Factory.StartNew(ReceiveLoop, CTS.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-        if (WS.State == WebSocketState.Open) OnConnect();
+        if (WS.State == WebSocketState.Open) OnConnect?.Invoke();
     }
 
     public async Task DisconnectAsync()
@@ -56,7 +57,7 @@ public partial class jSockClient : IDisposable
         CTS.Dispose();
         CTS = null;
 
-        OnDisconnect();
+        //OnDisconnect();
     }
 
     private async Task ReceiveLoop()
@@ -88,7 +89,7 @@ public partial class jSockClient : IDisposable
         }
         catch (TaskCanceledException)
         {
-            OnError("Error");
+            //OnError("Error");
         }
         finally
         {
@@ -113,21 +114,9 @@ public partial class jSockClient : IDisposable
     }
 
     public event OnRecieve OnRecieve;
-
-    public virtual void OnConnect()
-    {
-        cText.WriteLine("Connected to jSock Server!", "jSockClient/INFO", ConsoleColor.Red);
-    }
-
-    public virtual void OnDisconnect()
-    {
-        cText.WriteLine("Disconnected from jSock Server!", "jSockClient/INFO", ConsoleColor.Red);
-    }
-
-    public virtual void OnError(string error)
-    {
-        cText.WriteLine(error, "jSockClient/Error", ConsoleColor.Red);
-    }
+    public event OnConnect OnConnect;
+    // public event OnDelegate OnDisconnect;
+    // public event OnDelegateData OnError;
 
     public void Dispose() => DisconnectAsync().Wait();
 }

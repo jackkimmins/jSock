@@ -11,11 +11,22 @@ class Program
         client.SendMessage("Hello world!");
 
         client.OnRecieve += Client_OnRecieve;
+        client.OnConnect += Client_OnConnect;
         
         while (true)
         {
             client.SendMessage(Console.ReadLine() ?? "Hello, world!");
         }
+    }
+
+    private static void Client_OnConnect()
+    {
+        Console.WriteLine("Connected!");
+    }
+
+    private static void Client_OnDisconnect()
+    {
+        Console.WriteLine("Disconnected!");
     }
 
     private static void Client_OnRecieve(string data)
