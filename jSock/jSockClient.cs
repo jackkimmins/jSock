@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 
 namespace jSock;
 
-public abstract class jSockClient : IDisposable
+public delegate void OnRecieve(string data);
+
+public partial class jSockClient : IDisposable
 {
     private ClientWebSocket WS;
     private CancellationTokenSource CTS;
@@ -17,9 +19,11 @@ public abstract class jSockClient : IDisposable
 
     public string URL { get; private set; } = "";
 
-    public async Task ConnectAsync(string url)
+    public async Task ConnectAsync(string url = "")
     {
-        if (string.IsNullOrEmpty(url)) throw new ArgumentNullException("URL is empty or null.");
+        if (url != "") URL = url;
+
+        if (string.IsNullOrEmpty(URL)) throw new ArgumentNullException("URL is empty or null.");
 
         if (WS != null)
         {
@@ -108,7 +112,8 @@ public abstract class jSockClient : IDisposable
         inputStream.Dispose();
     }
 
-    public abstract void OnRecieve(string text);
+    public event OnRecieve OnRecieve;
+
     public virtual void OnConnect()
     {
         cText.WriteLine("Connected to jSock Server!", "jSockClient/INFO", ConsoleColor.Red);
@@ -125,4 +130,22 @@ public abstract class jSockClient : IDisposable
     }
 
     public void Dispose() => DisconnectAsync().Wait();
+}
+
+public partial class jSockClient : IDisposable
+{
+    public void Connect(string url = "")
+    {
+        ConnectAsync(url).Wait();
+    }
+
+    public void Disconnect()
+    {
+        DisconnectAsync().Wait();
+    }
+
+    public void SendMessage(string message)
+    {
+        SendMessageAsync(message).Wait();
+    }
 }

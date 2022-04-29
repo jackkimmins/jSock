@@ -1,33 +1,25 @@
 ﻿using jSock;
 
-class RTC : jSockClient
-{
-    public override void OnRecieve(string text)
-    {
-        throw new NotImplementedException();
-    }
-}
-
 class Program
 {
-    static RTC client = new RTC();
-
-    static async Task Start()
-    {
-        await client.ConnectAsync("ws://localhost:8080");
-
-        await client.SendMessageAsync("Hello world!");
-    }
-
     static void Main()
     {
-        System.Threading.Tasks.Task.Run(() => Start());
+        jSockClient client = new jSockClient();
+
+        client.Connect("ws://localhost:8080");
+
+        client.SendMessage("Hello world!");
+
+        client.OnRecieve += Client_OnRecieve;
         
         while (true)
         {
-            
-            Console.ReadKey();
-            System.Threading.Tasks.Task.Run(() => client.SendMessageAsync("test123"));
+            client.SendMessage(Console.ReadLine() ?? "Hello, world!");
         }
+    }
+
+    private static void Client_OnRecieve(string data)
+    {
+        Console.WriteLine("test:" + data);
     }
 }
