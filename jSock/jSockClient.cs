@@ -9,39 +9,50 @@ using System.Threading.Tasks;
 
 namespace jSock;
 
-public class jSockClient : IDisposable
+public abstract class jSockClient : IDisposable
 {
+    private ClientWebSocket WS;
+    private CancellationTokenSource CTS;
+    public int ReceiveBufferSize { get; protected set; } = 8192;
 
-    public int ReceiveBufferSize { get; set; } = 8192;
+    public string URL { get; private set; } = "";
 
     public async Task ConnectAsync(string url)
     {
+        if (string.IsNullOrEmpty(url)) throw new ArgumentNullException("URL is empty or null.");
+
         if (WS != null)
         {
             if (WS.State == WebSocketState.Open) return;
             else WS.Dispose();
         }
+
         WS = new ClientWebSocket();
         if (CTS != null) CTS.Dispose();
         CTS = new CancellationTokenSource();
         await WS.ConnectAsync(new Uri(url), CTS.Token);
         await Task.Factory.StartNew(ReceiveLoop, CTS.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+        if (WS.State == WebSocketState.Open) OnConnect();
     }
 
     public async Task DisconnectAsync()
     {
         if (WS is null) return;
-        // TODO: requests cleanup code, sub-protocol dependent.
+
         if (WS.State == WebSocketState.Open)
         {
             CTS.CancelAfter(TimeSpan.FromSeconds(2));
             await WS.CloseOutputAsync(WebSocketCloseStatus.Empty, "", CancellationToken.None);
             await WS.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
         }
+
         WS.Dispose();
         WS = null;
         CTS.Dispose();
         CTS = null;
+
+        OnDisconnect();
     }
 
     private async Task ReceiveLoop()
@@ -50,6 +61,7 @@ public class jSockClient : IDisposable
         MemoryStream outputStream = null;
         WebSocketReceiveResult receiveResult = null;
         var buffer = new byte[ReceiveBufferSize];
+
         try
         {
             while (!loopToken.IsCancellationRequested)
@@ -59,15 +71,21 @@ public class jSockClient : IDisposable
                 {
                     receiveResult = await WS.ReceiveAsync(buffer, CTS.Token);
                     if (receiveResult.MessageType != WebSocketMessageType.Close)
+                    {
                         outputStream.Write(buffer, 0, receiveResult.Count);
+                    }
                 }
                 while (!receiveResult.EndOfMessage);
+
                 if (receiveResult.MessageType == WebSocketMessageType.Close) break;
                 outputStream.Position = 0;
                 ResponseReceived(outputStream);
             }
         }
-        catch (TaskCanceledException) { }
+        catch (TaskCanceledException)
+        {
+            OnError("Error");
+        }
         finally
         {
             outputStream?.Dispose();
@@ -84,15 +102,27 @@ public class jSockClient : IDisposable
     {
         var reader = new StreamReader(inputStream);
         var response = reader.ReadToEnd();
-        Console.WriteLine(response);
 
+        OnRecieve(response);
 
         inputStream.Dispose();
     }
 
+    public abstract void OnRecieve(string text);
+    public virtual void OnConnect()
+    {
+        cText.WriteLine("Connected to jSock Server!", "jSockClient/INFO", ConsoleColor.Red);
+    }
+
+    public virtual void OnDisconnect()
+    {
+        cText.WriteLine("Disconnected from jSock Server!", "jSockClient/INFO", ConsoleColor.Red);
+    }
+
+    public virtual void OnError(string error)
+    {
+        cText.WriteLine(error, "jSockClient/Error", ConsoleColor.Red);
+    }
+
     public void Dispose() => DisconnectAsync().Wait();
-
-    private ClientWebSocket WS;
-    private CancellationTokenSource CTS;
-
 }

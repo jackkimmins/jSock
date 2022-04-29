@@ -1,13 +1,19 @@
 ﻿using jSock;
 
+class RTC : jSockClient
+{
+    public override void OnRecieve(string text)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 class Program
 {
-    static jSockClient client = new jSockClient();
+    static RTC client = new RTC();
 
     static async Task Start()
     {
-        
-
         await client.ConnectAsync("ws://localhost:8080");
 
         await client.SendMessageAsync("Hello world!");
