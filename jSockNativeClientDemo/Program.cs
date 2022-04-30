@@ -23,7 +23,7 @@ class Program
 
     private static void Client_OnRecieve(string data)
     {
-        Console.WriteLine("test:" + data);
+        Console.WriteLine("MSG:" + data);
     }
 
     private static void Client_OnConnect()

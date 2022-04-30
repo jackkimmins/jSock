@@ -5,52 +5,91 @@ using System.Text.RegularExpressions;
 
 namespace jSock;
 
-//A class for real-time bidirectional communication between the AppServer and connected clients.
-public abstract class jSockServer
+public class SocketClient
 {
-    public List<TcpClient> clients = new List<TcpClient>();
-    private Thread? rtcThread = null;
+    public string ClientID { get; set; } = "";
 
-    protected jSockServer(string address, int pORT)
+    public string? IP { get; set; } = null;
+    public int Port { get; set; } = -1;
+
+    public TcpClient Stream { get; internal set; } = new TcpClient();
+
+    public SocketClient(string clientID, TcpClient stream)
+    {
+        ClientID = clientID;
+        Stream = stream;
+    }
+}
+
+public delegate void ServerOnRecieve(int clientID, string data);
+public delegate void ServerOnConnect(int clientID);
+public delegate void ServerOnDisconnect(int clientID);
+public delegate void ServerOnError(string data);
+
+//A class for real-time bidirectional communication between the AppServer and connected clients.
+public class jSockServer
+{
+    public List<SocketClient> Clients = new List<SocketClient>();
+    private Thread? rtcThread = null;
+    public string Address { get; } = "";
+    public int PORT { get; } = -1;
+
+    public jSockServer(string address, int pORT)
     {
         Address = address;
         PORT = pORT;
     }
 
-    public string Address { get; }
-    public int PORT { get; }
+    public char[] ClientID_CharSet { get; private set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
+
+    private string NewClientID()
+    {
+        var sb = new StringBuilder();
+        var rnd = new Random();
+
+        do { for (var i = 0; i < 5; i++) sb.Append(ClientID_CharSet[rnd.Next(ClientID_CharSet.Length)]);
+        } while (Clients.Any(c => c.ClientID == sb.ToString()));
+
+        return sb.ToString();
+    }
 
     private void HandleClient(int index)
     {
-        NetworkStream stream = clients[index].GetStream();
+        NetworkStream stream = Clients[index].Stream.GetStream();
 
         while (true)
         {
-            try { while (!stream.DataAvailable); }
-            catch { break; }
+            //If no data is available from the stream, something is wrong with the server.
+            try { while (!stream.DataAvailable); } catch { break; }
 
             //Check if the index is valid.
-            if (index < 0 || index >= clients.Count)
-                break;
+            if (index < 0 || index >= Clients.Count) break;
 
             //Checks for GET request.
-            while (clients[index].Available < 3) ;
+            while (Clients[index].Stream.Available < 3);
 
-            byte[] bytes = new byte[clients[index].Available];
-            stream.Read(bytes, 0, clients[index].Available);
+            byte[] bytes = new byte[Clients[index].Stream.Available];
+            stream.Read(bytes, 0, Clients[index].Stream.Available);
             string s = Encoding.UTF8.GetString(bytes);
 
             if (Regex.IsMatch(s, "^GET", RegexOptions.IgnoreCase))
             {
-                string swk = Regex.Match(s, "Sec-WebSocket-Key: (.*)").Groups[1].Value.Trim();
-                string swka = swk + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+                //This upgrades the client to a persistent WebSocket connection.
+                string swk = Regex.Match(s, "Sec-WebSocket-Key: (.*)").Groups[1].Value.Trim(), swka = swk + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+                //RFC6455: Base64 encoded SHA-1 of the value of the Sec-WebSocket-Key header field is used to complete the negotiation.
                 byte[] swkaSha1 = System.Security.Cryptography.SHA1.Create().ComputeHash(Encoding.UTF8.GetBytes(swka));
                 string swkaSha1Base64 = Convert.ToBase64String(swkaSha1);
 
-                byte[] response = Encoding.UTF8.GetBytes("HTTP/1.1 101 Switching Protocols\r\n" + "Connection: Upgrade\r\n" + "Upgrade: websocket\r\n" + "Sec-WebSocket-Accept: " + swkaSha1Base64 + "\r\n\r\n");
-
+                //Create the response headers and return the handshake.
+                byte[] response = Encoding.UTF8.GetBytes("HTTP/1.1 101 Switching Protocols\r\n" +
+                                                         "Connection: Upgrade\r\n" +
+                                                         "Upgrade: websocket\r\n" +
+                                                         "Sec-WebSocket-Accept: " + swkaSha1Base64 + "\r\n\r\n");
+                                                         
                 stream.Write(response, 0, response.Length);
 
+                //Invoke the OnConnect event.
                 OnConnect(index);
             }
             else
@@ -68,55 +107,51 @@ public abstract class jSockServer
                     offset = 4;
                 }
 
-                if (msglen == 0)
-                    cText.WriteLine("Message lenght was 0 chars.", "RTC", ConsoleColor.Red);
+                if (msglen == 0) cText.WriteLine("Message lenght was 0 chars.", "RTC", ConsoleColor.Red);
                 else if (mask)
                 {
-                    byte[] decoded = new byte[msglen];
-                    byte[] masks = new byte[4] { bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3] };
+                    byte[] decoded = new byte[msglen], masks = new byte[4] { bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3] };
+
+                    //Increments the offset by 4 to get the next Nibble.
                     offset += 4;
 
-                    for (int i = 0; i < msglen; ++i)
-                        decoded[i] = (byte)(bytes[offset + i] ^ masks[i % 4]);
+                    for (int i = 0; i < msglen; ++i) decoded[i] = (byte)(bytes[offset + i] ^ masks[i % 4]);
 
                     if (decoded.Length == 2)
                     {
                         if (decoded[0] == 3 && decoded[1] == 233)
                         {
-                            OnDisconnect();
+                            OnDisconnect(index);
                             return;
                         }
                     }
 
+                    //Decode the message as UTF-8 text.
                     string text = Encoding.UTF8.GetString(decoded);
 
-                    if (text == "")
-                        return;
+                    if (text == "") return;
 
-                    // cText.WriteLine(text, "RTC-MSG", ConsoleColor.Magenta);
-
-                    OnRecieve(index, text);
+                    OnRecieve?.Invoke(index, text);
                 }
-                else
-                    cText.WriteLine("No MASK bit was set!", "RTC", ConsoleColor.Red);
+                else cText.WriteLine("No MASK bit was set!", "RTC", ConsoleColor.Red);
             }
         }
     }
 
-    //To disconnect a client.
-    public void Disconnect(int index)
-    {
-        clients[index].Close();
-    }
 
-    public abstract void OnRecieve(int clientID, string text);
-    public abstract void OnConnect(int clientID);
-    public abstract void OnDisconnect();
+    public event ServerOnConnect OnConnect;
+    public event ServerOnDisconnect OnDisconnect;
+    public event ServerOnRecieve OnRecieve;
+    public event ServerOnError OnError;
+
+
+    //To disconnect a client.
+    public void Disconnect(int index) => Clients[index].Stream.Close();
 
     //Reply to specific client.
     public bool Reply(int clientID, string msg)
     {
-        if (!clients[clientID].Connected)
+        if (!Clients[clientID].Stream.Connected)
         {
             Disconnect(clientID);
             return false;
@@ -124,17 +159,18 @@ public abstract class jSockServer
 
         try
         {
-
-            NetworkStream stream = clients[clientID].GetStream();
+            NetworkStream stream = Clients[clientID].Stream.GetStream();
             Queue<string> que = new Queue<string>(msg.SplitInGroups(125));
             int len = que.Count;
 
             while (que.Count > 0)
             {
-                var header = GetHeader(
-                    que.Count > 1 ? false : true,
-                    que.Count == len ? false : true
-                );
+                int header = que.Count > 1 ? 0 : 1;                         //fin: 0 = more frames, 1 = final frame
+                    header = (header << 1) + 0;                             //rsv1
+                    header = (header << 1) + 0;                             //rsv2
+                    header = (header << 1) + 0;                             //rsv3
+                    header = (header << 4) + (que.Count == len ? 1 : 0);    //opcode: 0 = continuation frame, 1 = text
+                    header = (header << 1) + 0;                             //mask: server -> client = no mask
 
                 byte[] list = Encoding.UTF8.GetBytes(que.Dequeue());
                 header = (header << 7) + list.Length;
@@ -153,31 +189,21 @@ public abstract class jSockServer
         return true;
     }
 
-    //Gets the header for the message
-    protected int GetHeader(bool finalFrame, bool contFrame)
-    {
-        int header = finalFrame ? 1 : 0;                //fin: 0 = more frames, 1 = final frame
-        header = (header << 1) + 0;                     //rsv1
-        header = (header << 1) + 0;                     //rsv2
-        header = (header << 1) + 0;                     //rsv3
-        header = (header << 4) + (contFrame ? 0 : 1);   //opcode : 0 = continuation frame, 1 = text
-        header = (header << 1) + 0;                     //mask: server -> client = no mask
-
-        return header;
-    }
-
-    //Converts an integer to a byte array
+    //Converts an ushort to a byte array
     protected byte[] IntToByteArray(ushort value)
     {
-        var ary = BitConverter.GetBytes(value);
-        if (BitConverter.IsLittleEndian)
-            Array.Reverse(ary);
+        byte[]? ary = BitConverter.GetBytes(value);
+
+        //Reverse the array depending on the endianness of the system's architecture.
+        if (BitConverter.IsLittleEndian) Array.Reverse(ary);
+
         return ary;
     }
 
     private void Run()
     {
         IPAddress? IP = null;
+
         try
         {
             IP = IPAddress.Parse(Address);
@@ -195,11 +221,21 @@ public abstract class jSockServer
 
         while (true)
         {
-            TcpClient client = server.AcceptTcpClient();
+            SocketClient sc = new SocketClient(NewClientID(), server.AcceptTcpClient());
+
+            EndPoint? address = sc.Stream.Client.RemoteEndPoint;
+
+            if (address is not null)
+            {
+                var splitAddress = address.ToString().Split(':');
+
+                sc.IP = splitAddress[0];
+                sc.Port = int.Parse(splitAddress[1]);
+            }
 
             //Add client to clients and get index
-            int index = clients.Count;
-            clients.Add(client);
+            int index = Clients.Count;
+            Clients.Add(sc);
 
             // cText.WriteLine("Client Connected", "RTC", ConsoleColor.Magenta);
 
@@ -211,11 +247,9 @@ public abstract class jSockServer
     //Broadcast message to all connected clients.
     public void Broadcast(string msg = "Hello, World!", int ignoreClientID = -1)
     {
-        for (int i = 0; i < clients.Count; ++i)
+        for (int i = 0; i < Clients.Count; ++i)
         {
-            if (i == ignoreClientID)
-                continue;
-
+            if (i == ignoreClientID) continue;
             Reply(i, msg);
         }
     }
