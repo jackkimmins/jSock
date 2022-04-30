@@ -4,19 +4,26 @@ class Program
 {
     static void Main()
     {
-        jSockClient client = new jSockClient();
+        jSockClient client = new jSockClient("ws://localhost:8080");
 
-        client.Connect("ws://localhost:8080");
+        client.Connect();
 
         client.SendMessage("Hello world!");
 
         client.OnRecieve += Client_OnRecieve;
         client.OnConnect += Client_OnConnect;
+        client.OnDisconnect += Client_OnDisconnect;
+        client.OnError += Client_OnError;
         
         while (true)
         {
             client.SendMessage(Console.ReadLine() ?? "Hello, world!");
         }
+    }
+
+    private static void Client_OnRecieve(string data)
+    {
+        Console.WriteLine("test:" + data);
     }
 
     private static void Client_OnConnect()
@@ -29,8 +36,8 @@ class Program
         Console.WriteLine("Disconnected!");
     }
 
-    private static void Client_OnRecieve(string data)
+    private static void Client_OnError(string data)
     {
-        Console.WriteLine("test:" + data);
+        Console.WriteLine("Error:" + data);
     }
 }

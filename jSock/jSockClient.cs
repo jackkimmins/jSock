@@ -11,6 +11,8 @@ namespace jSock;
 
 public delegate void OnRecieve(string data);
 public delegate void OnConnect();
+public delegate void OnDisconnect();
+public delegate void OnError(string data);
 
 public partial class jSockClient : IDisposable
 {
@@ -20,10 +22,13 @@ public partial class jSockClient : IDisposable
 
     public string URL { get; private set; } = "";
 
-    public async Task ConnectAsync(string url = "")
+    public jSockClient(string url)
     {
-        if (url != "") URL = url;
+        URL = url;
+    }
 
+    public async Task ConnectAsync()
+    {
         if (string.IsNullOrEmpty(URL)) throw new ArgumentNullException("URL is empty or null.");
 
         if (WS != null)
@@ -35,10 +40,19 @@ public partial class jSockClient : IDisposable
         WS = new ClientWebSocket();
         if (CTS != null) CTS.Dispose();
         CTS = new CancellationTokenSource();
-        await WS.ConnectAsync(new Uri(url), CTS.Token);
-        await Task.Factory.StartNew(ReceiveLoop, CTS.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-        if (WS.State == WebSocketState.Open) OnConnect?.Invoke();
+        try
+        {
+            await WS.ConnectAsync(new Uri(URL), CTS.Token);
+            await Task.Factory.StartNew(ReceiveLoop, CTS.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+            if (WS.State == WebSocketState.Open) OnConnect?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            OnError(ex.Message);
+            await DisconnectAsync();
+        }
     }
 
     public async Task DisconnectAsync()
@@ -57,7 +71,7 @@ public partial class jSockClient : IDisposable
         CTS.Dispose();
         CTS = null;
 
-        //OnDisconnect();
+        OnDisconnect?.Invoke();
     }
 
     private async Task ReceiveLoop()
@@ -84,12 +98,13 @@ public partial class jSockClient : IDisposable
 
                 if (receiveResult.MessageType == WebSocketMessageType.Close) break;
                 outputStream.Position = 0;
+
                 ResponseReceived(outputStream);
             }
         }
         catch (TaskCanceledException)
         {
-            //OnError("Error");
+            OnError("Receive loop was cancelled.");
         }
         finally
         {
@@ -99,6 +114,18 @@ public partial class jSockClient : IDisposable
 
     public async Task SendMessageAsync(string message)
     {
+        if (WS is null) return;
+
+        //Check if the socket is open and connected.
+        if (WS.State != WebSocketState.Open)
+        {
+            await DisconnectAsync();
+            await ConnectAsync();
+
+            if (WS is null) return;
+            if (WS.State != WebSocketState.Open) return;
+        }
+
         var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
         await WS.SendAsync(buffer, WebSocketMessageType.Text, true, CTS.Token);
     }
@@ -115,17 +142,17 @@ public partial class jSockClient : IDisposable
 
     public event OnRecieve OnRecieve;
     public event OnConnect OnConnect;
-    // public event OnDelegate OnDisconnect;
-    // public event OnDelegateData OnError;
+    public event OnDisconnect OnDisconnect;
+    public event OnError OnError;
 
     public void Dispose() => DisconnectAsync().Wait();
 }
 
 public partial class jSockClient : IDisposable
 {
-    public void Connect(string url = "")
+    public void Connect()
     {
-        ConnectAsync(url).Wait();
+        ConnectAsync().Wait();
     }
 
     public void Disconnect()
