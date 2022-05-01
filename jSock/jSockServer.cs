@@ -26,6 +26,7 @@ public delegate void ServerOnConnect(int clientID);
 public delegate void ServerOnDisconnect(int clientID);
 public delegate void ServerOnError(string data);
 
+
 //A class for real-time bidirectional communication between the AppServer and connected clients.
 public class jSockServer
 {
