@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "jSock/1.0.0": {
+      "jSock/2.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "compile": {
@@ -15,7 +15,7 @@
     }
   },
   "libraries": {
-    "jSock/1.0.0": {
+    "jSock/2.0.0": {
       "type": "project",
       "path": "../jSock/jSock.csproj",
       "msbuildProject": "../jSock/jSock.csproj"
@@ -23,7 +23,7 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "jSock >= 1.0.0"
+      "jSock >= 2.0.0"
     ]
   },
   "packageFolders": {

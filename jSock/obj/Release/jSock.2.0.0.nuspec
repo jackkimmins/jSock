@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>jSock</id>
+    <version>2.0.0</version>
+    <authors>Jack Kimmins</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <icon>jSockLogo.png</icon>
+    <projectUrl>https://github.com/jackkimmins/jSock</projectUrl>
+    <description>My C# WebSocket Server</description>
+    <copyright>© Copyright 2022 Jack Kimmins. All rights reserved.</copyright>
+    <tags>websocket server c# host websockets</tags>
+    <repository url="https://github.com/jackkimmins/jSock" />
+    <dependencies>
+      <group targetFramework="net6.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\Users\jackk\OneDrive\My Projects\jSock\jSock\bin\Release\net6.0\jSock.dll" target="lib\net6.0\jSock.dll" />
+    <file src="C:\Users\jackk\OneDrive\My Projects\jSock\jSockLogo.png" target="\jSockLogo.png" />
+  </files>
+</package>

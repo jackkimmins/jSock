@@ -12,7 +12,11 @@
     <RepositoryUrl>https://github.com/jackkimmins/jSock</RepositoryUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageTags>websocket;server;c#;host;websockets</PackageTags>
-    <PackageLicenseFile></PackageLicenseFile>
+    <Copyright>© Copyright 2022 Jack Kimmins. All rights reserved.</Copyright>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
+    <PackageLicenseExpression> Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

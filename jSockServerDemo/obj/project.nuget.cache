@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FxD45yFxWXq0jwFgj81VJ3BpsqEzcqCZP5J7IvRSz91ARCmN7ESBuDP1kMcz2imwhc0fslQGvJkRztUq+t+EWQ==",
+  "dgSpecHash": "8RdCH7fTGtIg6LCDvEMOVJP7ofg6zjBEcW+xaJIGmiVhpTi/p0g0nHVGUBzJxNLH1AUli+/QdvTno9faQm4OaA==",
   "success": true,
   "projectFilePath": "C:\\Users\\jackk\\OneDrive\\My Projects\\jSock\\jSockServerDemo\\jSockServerDemo.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\jackk\\.nuget\\packages\\jsock\\1.0.0\\jsock.1.0.0.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }

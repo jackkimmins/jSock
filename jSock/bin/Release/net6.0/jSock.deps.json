@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v6.0": {
-      "jSock/1.0.0": {
+      "jSock/2.0.0": {
         "runtime": {
           "jSock.dll": {}
         }
@@ -14,7 +14,7 @@
     }
   },
   "libraries": {
-    "jSock/1.0.0": {
+    "jSock/2.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -8,13 +8,13 @@
     ".NETCoreApp,Version=v6.0": {
       "jSockNativeClientDemo/1.0.0": {
         "dependencies": {
-          "jSock": "1.0.0"
+          "jSock": "2.0.0"
         },
         "runtime": {
           "jSockNativeClientDemo.dll": {}
         }
       },
-      "jSock/1.0.0": {
+      "jSock/2.0.0": {
         "runtime": {
           "jSock.dll": {}
         }
@@ -27,7 +27,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "jSock/1.0.0": {
+    "jSock/2.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
