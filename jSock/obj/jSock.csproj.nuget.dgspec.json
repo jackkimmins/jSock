@@ -5,7 +5,7 @@
   },
   "projects": {
     "C:\\Users\\jackk\\OneDrive\\My Projects\\jSock\\jSock\\jSock.csproj": {
-      "version": "1.0.0",
+      "version": "2.0.1",
       "restore": {
         "projectUniqueName": "C:\\Users\\jackk\\OneDrive\\My Projects\\jSock\\jSock\\jSock.csproj",
         "projectName": "jSock",
@@ -54,7 +54,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.101\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.309\\RuntimeIdentifierGraph.json"
         }
       }
     }

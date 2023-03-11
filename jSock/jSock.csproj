@@ -4,6 +4,26 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Authors>Jack Kimmins</Authors>
+    <Company>Stable Network</Company>
+    <Description>My C# WebSocket Server</Description>
+    <PackageProjectUrl>https://github.com/jackkimmins/jSock</PackageProjectUrl>
+    <PackageIcon>jSockLogo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/jackkimmins/jSock</RepositoryUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageTags>websocket;server;c#;host;websockets</PackageTags>
+    <Copyright>© Copyright 2022 Jack Kimmins. All rights reserved.</Copyright>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <FileVersion>2.0.1.0</FileVersion>
+    <Version>2.0.1</Version>
+    <PackageLicenseExpression> Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\jSockLogo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
