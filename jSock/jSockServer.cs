@@ -35,10 +35,10 @@ public class jSockServer
     public string Address { get; } = "";
     public int PORT { get; } = -1;
 
-    public jSockServer(string address, int pORT)
+    public jSockServer(string address, int port)
     {
         Address = address;
-        PORT = pORT;
+        PORT = port;
     }
 
     public char[] ClientID_CharSet { get; private set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();

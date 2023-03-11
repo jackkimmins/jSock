@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "jSock/2.0.0": {
+      "jSock/2.0.1": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "compile": {
@@ -15,7 +15,7 @@
     }
   },
   "libraries": {
-    "jSock/2.0.0": {
+    "jSock/2.0.1": {
       "type": "project",
       "path": "../jSock/jSock.csproj",
       "msbuildProject": "../jSock/jSock.csproj"
@@ -23,7 +23,7 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "jSock >= 2.0.0"
+      "jSock >= 2.0.1"
     ]
   },
   "packageFolders": {
@@ -83,7 +83,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.309\\RuntimeIdentifierGraph.json"
       }
     }
   }
